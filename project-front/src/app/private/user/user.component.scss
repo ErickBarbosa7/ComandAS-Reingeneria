@@ -1,0 +1,72 @@
+:host {
+    display: block;
+    padding: 24px;
+    max-width: 600px;
+    margin: 0 auto; 
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background-color: white;
+    padding: 32px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+    h2 {
+        color: var(--primary);
+        text-align: center;
+        margin-top: 0;
+    }
+
+    .fields-container {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    mat-form-field {
+        width: 100%;
+        mat-icon {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary);
+            margin: 8px; 
+            
+            svg {
+                width: 22px;
+                height: 22px;
+            }
+        }
+    }
+
+    .actions {
+        display: flex;
+        justify-content: space-between; 
+        align-items: center;
+        margin-top: 24px;
+        gap: 16px;
+
+        button {
+            color: #ff9393;
+            min-width: 120px; 
+            padding: 10px 24px;
+        }
+
+        .save-btn {
+            font-weight: 500;
+        }
+
+        .delete-btn {
+            background-color: transparent;
+            color: #ef4444;
+            border: 1px solid #ef4444;
+            
+            &:hover {
+                background-color: #fee2e2;
+            }
+        }
+    }
+}

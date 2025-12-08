@@ -1,0 +1,42 @@
+<section>
+    <img src="assets/logo.png" alt="" />
+    
+    <form class="form" [formGroup]="form" (ngSubmit)="signup()">
+        
+        <mat-form-field appearance="outline">
+            <mat-label>Nombre</mat-label>
+            <input type="text" matInput formControlName="name"/>
+            <mat-icon matPrefix>person</mat-icon>
+            <mat-error>Ingresa un valor válido</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Correo</mat-label>
+            <input type="email" matInput formControlName="email" />
+            <mat-icon matPrefix>mail</mat-icon>
+            <mat-error>Ingresa un correo válido</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Contraseña</mat-label>
+            <input matInput formControlName="password" type="password" />
+            <mat-icon matPrefix>password</mat-icon>
+            <mat-error>Ingresa un valor válido</mat-error>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline">
+            <mat-label>Teléfono</mat-label>
+            <input type="tel" matInput formControlName="phone"/>
+            <mat-icon matPrefix>phone</mat-icon>
+            <mat-error>Ingresa un valor válido</mat-error>
+        </mat-form-field>
+
+        
+
+        <button type="submit" class="button-primary">Registrarse</button>
+        
+        <button type="button" class="button-secundary" (click)="goToSignIn()">
+            ¿Ya tienes cuenta? Iniciar Sesión
+        </button>
+        
+    </form>
+</section>

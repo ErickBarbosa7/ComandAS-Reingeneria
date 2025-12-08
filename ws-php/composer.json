@@ -1,0 +1,19 @@
+{
+    "name": "lizet/comandas",
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "Config\\": "config/",
+            "Router\\": "router/" 
+        }
+    },
+    "authors": [
+        {
+            "name": "lizethvqz"
+        }
+    ],
+    "require": {
+        "lcobucci/jwt": "4.2.1",
+        "ramsey/uuid": "4.7"
+    }
+}

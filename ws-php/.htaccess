@@ -1,0 +1,15 @@
+RewriteEngine On
+
+# Redirigir todas las solicitudes a index.php, excepto la raíz "/"
+RewriteCond %{REQUEST_URI} !^/$
+RewriteRule ^ public/Index.php [L]
+
+# ------------------------------------------
+
+# Devolver un error 404 para la raíz "/"
+# RewriteRule ^$ - [R=404,L]
+
+# ------------------------------------------
+
+# Devolver un error html para la raíz "/"
+# RewriteRule ^ 404.html [L]

@@ -1,0 +1,147 @@
+<mat-drawer-container>
+
+    @if (rol !== 2) {
+    <mat-drawer #drawer mode="side" opened>
+        <nav>
+            <div class="icon-container">
+
+                @if(rol === 0 || rol === 1 || rol === 3){
+                <button [routerLink]="['/private/menu']" routerLinkActive="router-link-active">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="none" stroke="#B20000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12 16H4a2 2 0 1 1 0-4h16a2 2 0 1 1 0 4h-4.25M5 12a2 2 0 0 1-2-2a9 7 0 0 1 18 0a2 2 0 0 1-2 2M5 16a2 2 0 0 0-2 2a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3a2 2 0 0 0-2-2q0 0 0 0"/><path d="m6.67 12l6.13 4.6a2 2 0 0 0 2.8-.4l3.15-4.2"/></g></svg>
+                    <h3>Menú</h3>
+                </button>
+                }
+
+                @if(rol === 0 || rol === 1 || rol === 3){
+                <button [routerLink]="['/private/orders-view']" routerLinkActive="router-link-active">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#B20000"
+                        fill="none">
+                        <path d="M8 16L16.7201 15.2733C19.4486 15.046 20.0611 14.45 20.3635 11.7289L21 6"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                        <path d="M6 6H6.5M22 6H19.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                        <path d="M9.5 6H16.5M13 9.5V2.5" stroke="currentColor" stroke-width="1.5"
+                            stroke-linecap="round" />
+                        <circle cx="6" cy="20" r="2" stroke="currentColor" stroke-width="1.5" />
+                        <circle cx="17" cy="20" r="2" stroke="currentColor" stroke-width="1.5" />
+                        <path d="M8 20L15 20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                        <path
+                            d="M2 2H2.966C3.91068 2 4.73414 2.62459 4.96326 3.51493L7.93852 15.0765C8.08887 15.6608 7.9602 16.2797 7.58824 16.7616L6.63213 18"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                    </svg>
+                    <h3>{{ rol === 3 ? 'Mis Órdenes' : 'Órdenes' }}</h3>
+                </button> 
+                }
+
+                @if(rol === 3){
+                <button [routerLink]="['/private/user-edit', user.idusers]" routerLinkActive="router-link-active">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#B20000"
+                        fill="none">
+                        <path
+                            d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M20.5899 22C20.5899 18.134 16.7448 15 12 15C7.25511 15 3.41003 18.134 3.41003 22"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <h3>Mi Perfil</h3>
+                </button>
+                }
+
+                @if(rol === 0){
+                <button [routerLink]="['/private/user-view']" routerLinkActive="router-link-active">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#B20000"
+                        fill="none">
+                        <path
+                            d="M20.774 18C21.5233 18 22.1193 17.5285 22.6545 16.8691C23.7499 15.5194 21.9513 14.4408 21.2654 13.9126C20.568 13.3756 19.7894 13.0714 19 13M18 11C19.3807 11 20.5 9.88071 20.5 8.5C20.5 7.11929 19.3807 6 18 6"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                        <path
+                            d="M3.22596 18C2.47666 18 1.88067 17.5285 1.34555 16.8691C0.250089 15.5194 2.04867 14.4408 2.7341 13.9126C3.43197 13.3756 4.21058 13.0714 5 13M5.5 11C4.11929 11 3 9.88071 3 8.5C3 7.11929 4.11929 6 5.5 6"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                        <path
+                            d="M8.0838 15.1112C7.06203 15.743 4.38299 17.0331 6.0147 18.6474C6.81178 19.436 7.69952 20 8.81563 20H15.1844C16.3005 20 17.1882 19.436 17.9853 18.6474C19.617 17.0331 16.938 15.743 15.9162 15.1112C13.5201 13.6296 10.4799 13.6296 8.0838 15.1112Z"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        <path
+                            d="M15.5 7.5C15.5 9.433 13.933 11 12 11C10.067 11 8.5 9.433 8.5 7.5C8.5 5.567 10.067 4 12 4C13.933 4 15.5 5.567 15.5 7.5Z"
+                            stroke="currentColor" stroke-width="1.5" />
+                    </svg>
+                    <h3>Usuarios</h3>
+                </button>
+
+                <button [routerLink]="['/private/dash-admin']" routerLinkActive="router-link-active">
+                    <svg xmlns="http://www.w3.org/2000/svg" 
+                        width="24" height="24" 
+                        viewBox="0 0 16 16" 
+                        color="#B20000" 
+                        fill="none">
+                    <path 
+                        fill="currentColor" 
+                        fill-rule="evenodd" 
+                        d="M16 14v1H0V0h1v14h15zM5 13H3V8h2v5zm4 0H7V3h2v10zm4 0h-2V6h2v7z"
+                    />
+                    </svg>
+                    <h3>Ventas</h3>
+                </button>
+                
+
+                }
+            </div>
+
+                <button class="log-out" (click)="logOut()">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#B20000"
+                        fill="none">
+                        <path
+                            d="M14 3.09502C13.543 3.03241 13.0755 3 12.6 3C7.29807 3 3 7.02944 3 12C3 16.9706 7.29807 21 12.6 21C13.0755 21 13.543 20.9676 14 20.905"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                        <path
+                            d="M21 12L11 12M21 12C21 11.2998 19.0057 9.99153 18.5 9.5M21 12C21 12.7002 19.0057 14.0085 18.5 14.5"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <h3>Cerrar sesion</h3>
+                </button>
+           
+        </nav>
+    </mat-drawer>
+    }
+
+    <mat-drawer-content>
+        <header>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#B20000"
+                    fill="none">
+                    <path
+                        d="M14.8541 4H9.14593C6.6503 4 4.52873 5.68344 3.75294 8.02892C3.49753 8.80111 3.36982 9.18721 3.69065 9.59361C4.01149 10 4.53377 10 5.57833 10H18.4217C19.4662 10 19.9885 10 20.3093 9.59361C20.6302 9.18721 20.5025 8.80111 20.2471 8.02892C19.4713 5.68344 17.3497 4 14.8541 4Z"
+                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    <path
+                        d="M4 16H3.5C2.67157 16 2 15.3284 2 14.5C2 13.6716 2.67157 13 3.5 13H11.3944C11.7893 13 12.1753 13.1169 12.5038 13.3359L14.4453 14.6302C14.7812 14.8541 15.2188 14.8541 15.5547 14.6302L17.4962 13.3359C17.8247 13.1169 18.2107 13 18.6056 13H20.5C21.3284 13 22 13.6716 22 14.5C22 15.3284 21.3284 16 20.5 16H20M4 16L4.4319 17.7276C4.76578 19.0631 5.96573 20 7.34233 20H16.6577C18.0343 20 19.2342 19.0631 19.5681 17.7276L20 16M4 16H11M20 16H18.5"
+                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M15.0078 7L14.9988 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    <path d="M10.5 6.5L9.5 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                <h2>AS Burger</h2>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <h3 class="user-name">{{user.name}}</h3>
+
+                @if(rol === 2){
+                <button class="header-logout-btn" (click)="logOut()">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"
+                        color="currentColor" fill="none">
+                        <path
+                            d="M14 3.09502C13.543 3.03241 13.0755 3 12.6 3C7.29807 3 3 7.02944 3 12C3 16.9706 7.29807 21 12.6 21C13.0755 21 13.543 20.9676 14 20.905"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        <path
+                            d="M21 12L11 12M21 12C21 11.2998 19.0057 9.99153 18.5 9.5M21 12C21 12.7002 19.0057 14.0085 18.5 14.5"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span>Salir</span>
+                </button>
+                }
+            </div>
+        </header>
+
+        <router-outlet></router-outlet>
+
+    </mat-drawer-content>
+</mat-drawer-container>

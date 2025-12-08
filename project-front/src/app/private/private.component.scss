@@ -1,0 +1,108 @@
+mat-drawer-container {
+    height: 100vh;
+
+    .icon-container {
+        display: flex;
+        flex-direction: column;
+        width: 56px;
+        gap: 16px;
+        padding: 16px;
+    }
+
+    mat-drawer {
+        width: 48px;
+        transition-duration: 300ms;
+
+        &:hover {
+            width: 320px;
+        }
+    }
+
+    .log-out {
+        padding: 16px;
+    }
+    .user-name {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #333;
+    }
+
+    .header-logout-btn {
+    height: 32px;
+    display: flex;
+    align-items: center;
+    gap: 8px; 
+    background-color: #B20000;
+    color: white;
+    border: none;
+    padding: 8px 16px; 
+    border-radius: 20px; 
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(178, 0, 0, 0.2);
+    }
+
+    .header-logout-btn:hover {
+    background-color: #8f0000; 
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(178, 0, 0, 0.3);
+    }
+
+    .header-logout-btn:active {
+    transform: translateY(0);
+    }
+    nav {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+        padding-bottom: 32px;
+    }
+
+    header {
+        padding: 16px;
+        display: flex;
+        gap: 16px;
+        justify-content: space-between;
+
+        div {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 500;
+
+            h2 {
+                font-size: 24px;
+            }
+        }
+
+        h2, h3 {
+            margin: 0;
+        }
+    }
+
+    button {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-start;
+        height: 24px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 0; 
+        color: inherit; 
+        width: 100%; 
+        h3 {
+            white-space: nowrap;
+        }
+
+        svg {
+            flex-shrink: 0;
+        }
+    }
+}

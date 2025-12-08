@@ -1,0 +1,12 @@
+# Ignorar la carpeta vendor/
+vendor/
+
+# También puedes añadir otros archivos comunes a ignorar en PHP
+# Archivos de entorno local
+.env
+
+# Archivos de sistema (específicos de OS)
+.DS_Store
+
+# Archivos de registro (logs)
+*.log
