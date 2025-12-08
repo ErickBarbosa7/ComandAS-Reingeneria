@@ -2,8 +2,7 @@
 namespace App\services;
 
 use Config\database\Methods as db;
-// Asegúrate de tener los imports necesarios
-// use Config\Jwt\Jwt; ... etc
+use Config\Jwt\Jwt;
 
 class UserService {
 
@@ -42,7 +41,7 @@ class UserService {
 
     $result = db::query($query);
 
-    // ✅ Si no hubo error, devolvemos el usuario actualizado
+    // Si no hubo error, devolvemos el usuario actualizado
     if (!$result->error) {
         return self::viewUser($id);
     }
