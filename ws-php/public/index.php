@@ -1,44 +1,56 @@
 <?php
-// Incluye el archivo de carga automática de clases desde la carpeta 'vendor'
-require_once '../vendor/autoload.php';
+// 1. SILENCIAR ERRORES VISUALES (CRÍTICO PARA ANGULAR)
+// Esto evita que los "Warnings" rompan el JSON que recibe el Frontend
+error_reporting(0); 
+ini_set('display_errors', 0);
 
-// Importa la clase Router desde el namespaces 'Router'
-use Router\router;
+// 2. CARGA DE DEPENDENCIAS
+require_once '../vendor/autoload.php'; 
+use Router\Router;
 
-// Establece los Headers
+// 3. CORS Y HEADERS (Siempre JSON)
 header("Access-Control-Allow-Origin: *");
-header("Content-type: application/json; charset=utf-8");
-header("Access-Control-Allow-Headers: *");
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
+header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, simple");
 
-// Obtiene todas los headers de la solicitud actual
-$HEADERS = getallheaders();
-
-// Obtiene la URI de la solicitud y el método HTTP utilizado
-$requestUri = rute(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
-$httpMethod = $_SERVER['REQUEST_METHOD'];
-
-// Llama al método estático 'handle' de la clase 'Router' para manejar la solicitud
-Router::handle($httpMethod, $requestUri, $HEADERS);
-
-//Función para analizar la URL y extraer parte de ella.
-function rute (String $url) {
-    // Divide la URL en segmentos usando '/' como separador
-    $parts = explode('/', $url);
-    
-    // Busca el índice del segmento 'public' en la URL
-    $publicIndex = array_search('public', $parts);
-    
-    // Verifica si se encuentra 'public' y si hay un segmento siguiente después de 'public'
-    if ($publicIndex !== false && isset($parts[$publicIndex + 1])) {
-        // Devuelve el segmento siguiente después de 'public'
-        //return $parts[$publicIndex + 1];
-        $routeParts = array_slice($parts, $publicIndex + 1); // Obtiene ["auth", "signin"]
-        return implode('/', $routeParts);
-    } else {
-        // Si 'public' no está presente o no hay un segmento siguiente, devuelve una cadena vacía
-        return "";
-    }
+// 4. MANEJO DE PRE-FLIGHT (OPTIONS)
+// Si el navegador pregunta permisos, respondemos OK y cortamos aquí.
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit(0);
 }
 
+// 5. PROCESAMIENTO PRINCIPAL
+try {
+    $HEADERS = getallheaders();
+    
+    // Obtenemos la ruta limpia
+    $requestUri = rute(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+    $httpMethod = $_SERVER['REQUEST_METHOD'];
+
+    // Ejecutar Router
+    Router::handle($httpMethod, $requestUri, $HEADERS);
+
+} catch (Throwable $e) {
+    // Si hay error fatal, devolvemos JSON válido
+    http_response_code(500);
+    echo json_encode([
+        "error" => true,
+        "msg" => "Error Fatal: " . $e->getMessage()
+    ]);
+}
+
+// 6. FUNCIÓN DE LIMPIEZA DE URL
+function rute($url) {
+    $url = trim($url, '/');
+    $parts = explode('/', $url);
+    
+    // Si la URL empieza con "public" (compatibilidad), lo quitamos
+    if (isset($parts[0]) && $parts[0] === 'public') {
+        array_shift($parts);
+    }
+    
+    return implode('/', $parts); 
+}
 ?>

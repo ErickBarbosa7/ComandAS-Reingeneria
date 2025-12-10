@@ -1,197 +1,216 @@
-import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ProviderService } from '../../services/provider.service';
+import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { ActivatedRoute, Params, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { WebSocketsService } from '../../services/web-sockets.service';
+import { Router, ActivatedRoute, Params } from '@angular/router';
 import { LocalstorageService } from '../../services/localstorage.service';
+import { ProviderService } from '../../services/provider.service';
+import { WebSocketsService } from '../../services/web-sockets.service';
 
 @Component({
   selector: 'app-user',
   standalone: true,
   imports: [
+    CommonModule,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatButtonModule
   ],
   templateUrl: './user.component.html',
   styleUrl: './user.component.scss',
 })
-export class UserComponent {
+export class UserComponent implements OnInit {
 
-  private _formbuilder = inject(FormBuilder)
-  private _provider = inject(ProviderService)
-  private _snackBar = inject(MatSnackBar)
-  private _wsService = inject(WebSocketsService)
-  private _router = inject(Router)
-  private _activedRouter = inject(ActivatedRoute)
-  private _storage = inject(LocalstorageService)
+  private _formbuilder = inject(FormBuilder);
+  private _provider = inject(ProviderService);
+  private _snackBar = inject(MatSnackBar);
+  private _wsService = inject(WebSocketsService);
+  private _router = inject(Router);
+  private _activedRouter = inject(ActivatedRoute);
+  private _storage = inject(LocalstorageService);
 
-  id: string = ''
-  isClient: boolean = false
-  isEditMode: boolean = false
+  id: string = '';
+  isClient: boolean = false;
+  isEditMode: boolean = false;
 
   // Lista de roles disponibles
   roles = [
     { name: 'Administrador', value: 0 },
-    { name: 'Cajero', value: 1 },
+    { name: 'Cajero / Mesero', value: 1 },
     { name: 'Cocinero', value: 2 },
     { name: 'Cliente', value: 3 },
-  ]
+  ];
 
   // Formulario con validaciones
   formulario = this._formbuilder.group({
     idusers: [null],
     name: [null, [Validators.required]],
-    password: [null, [Validators.required]],
+    password: [null, [Validators.required]], // Se vuelve opcional en edición
     phone: [null],
     rol: [null, Validators.required],
-    email: ['']
-  })
+    email: [''] // Campo opcional
+  });
 
   async ngOnInit() {
+    // 1. Detectar modo (Edición vs Creación)
+    this.isEditMode = this._router.url.includes('edit');
 
-    // Detecta si es edicion o creacion
-    this.isEditMode = this._router.url.includes('edit')
-
-    // Si es creacion, no permite crear clientes
+    // 2. Regla de Negocio: Al CREAR, el admin NO puede crear Clientes (Rol 3)
     if (!this.isEditMode) {
-      this.roles = this.roles.filter(r => r.value !== 3)
+      this.roles = this.roles.filter(r => r.value !== 3);
     }
 
-    // Detecta si el usuario logueado es cliente
-    const currentUser = this._storage.getItem('user')
+    // 3. Detectar si el usuario LOGUEADO es un Cliente (para proteger su propio perfil)
+    const currentUser = this._storage.getItem('user');
     if (currentUser && Number(currentUser.rol) === 3) {
-      this.isClient = true
-      this.formulario.get('rol')?.disable()
+      this.isClient = true;
+      this.formulario.get('rol')?.disable(); // Cliente no puede cambiarse el rol
     }
 
-    // Si esta en edicion, carga los datos del usuario
+    // 4. Si es Edición, cargar datos
     if (this.isEditMode) {
-
-      // La contraseña no es obligatoria al editar
-      this.formulario.get('password')?.clearValidators()
-      this.formulario.get('password')?.updateValueAndValidity()
+      // La contraseña no es obligatoria al editar (si se deja vacía, no se cambia)
+      this.formulario.get('password')?.clearValidators();
+      this.formulario.get('password')?.updateValueAndValidity();
 
       this._activedRouter.params.subscribe(async (params: Params) => {
+        this.id = params['id'];
 
-        this.id = params['id']
+        try {
+          const response: any = await this._provider.request('GET', 'user/viewUser', { idusers: this.id });
+          const user = Array.isArray(response) ? response[0] : response;
 
-        const response: any = await this._provider.request('GET', 'user/viewUser', { idusers: this.id })
-        const user = Array.isArray(response) ? response[0] : response
+          if (user) {
+            // Limpiamos password para que no aparezca el hash en el input
+            if (user.password) delete user.password;
 
-        // No parchea la contraseña
-        if (user?.password) delete user.password
+            // Lógica visual para rol de cliente
+            if (Number(user.rol) === 3) {
+              // Si estamos editando a un cliente, permitimos ver el rol 3 en la lista
+              // (pero deshabilitado si se requiere)
+              // Aquí restauramos la lista completa para que aparezca "Cliente"
+              this.roles = [
+                { name: 'Administrador', value: 0 },
+                { name: 'Cajero', value: 1 },
+                { name: 'Cocinero', value: 2 },
+                { name: 'Cliente', value: 3 },
+              ];
+              this.formulario.get('rol')?.disable();
+              this.isClient = true;
+            } else {
+              // Si es staff, filtramos cliente
+              this.roles = this.roles.filter(r => r.value !== 3);
+            }
 
-        // Si es cliente, bloquea el rol
-        if (Number(user?.rol) === 3) {
-          this.roles = [...this.roles]
-          this.formulario.get('rol')?.disable()
-          this.isClient = true
-        } else {
-          this.roles = this.roles.filter(r => r.value !== 3)
+            this.formulario.patchValue(user);
+          }
+        } catch (error) {
+          console.error(error);
         }
-
-        this.formulario.patchValue(user)
-
-        // Forza email vacio si no aplica
-        if (!this.showEmail) {
-          this.formulario.patchValue({ email: '' })
-        }
-      })
+      });
     }
   }
 
   async save() {
+    // Obtenemos valores (incluyendo deshabilitados si los hubiera)
+    const formData = this.formulario.getRawValue();
 
-    const formData = this.formulario.getRawValue()
+    // Limpieza opcional
+    if (!this.showEmail) formData.email = '';
 
-    if (!this.showEmail) formData.email = ''
+    try {
+      // --- MODO EDICION (UPDATE) ---
+      if (this.isEditMode) {
+        if (this.formulario.valid) {
+          const dataToSend = { ...formData, idusers: this.id };
+          
+          // Usamos el endpoint correcto: user/update
+          // Nota: Asegúrate de tener esta ruta en Router.php: "user/update" => [UserController::class, "updateUser", 1]
+          const data: any = await this._provider.request('POST', 'user/update', dataToSend);
 
-    // --- MODO EDICION ---
-    if (this.isEditMode) {
+          if (data && !data.error) {
+            // Actualizar LocalStorage si me edité a mí mismo
+            const currentUser = this._storage.getItem('user');
+            if (currentUser && String(currentUser.idusers) === String(this.id)) {
+              const updatedUser = { ...currentUser, ...dataToSend };
+              // Si el password venía vacío, no lo sobreescribimos en el objeto local (aunque el backend ya lo manejó)
+              this._storage.setItem('user', updatedUser);
+            }
 
-      if (this.formulario.valid) {
-
-        const dataToSend = { ...formData, idusers: this.id }
-        var data = await this._provider.request('PUT', 'user/updateUser', dataToSend)
-
-        if (data) {
-
-          // Si el usuario editado es el mismo que el logueado, se actualiza en localstorage
-          const currentUser = this._storage.getItem('user')
-          if (currentUser && String(currentUser.idusers) === String(this.id)) {
-            const updatedUser = { ...data, token: currentUser.token }
-            this._storage.setItem('user', updatedUser)
-          }
-
-          this._snackBar.open('Usuario Actualizado', '', { duration: 3000, verticalPosition: 'top' })
-
-          if (this.isClient) {
-            this._router.navigate(['private/menu'])
+            this._snackBar.open('Usuario Actualizado', 'Cerrar', { duration: 3000, verticalPosition: 'top' });
+            
+            // Redirección inteligente
+            if (this.isClient) {
+              this._router.navigate(['private/menu']);
+            } else {
+              this._router.navigate(['private/user-view']);
+            }
           } else {
-            this._router.navigate(['private/user-view'])
+            this._snackBar.open(data.msg || 'No se pudo actualizar', 'Cerrar', { duration: 3000, verticalPosition: 'top' });
           }
-
-          this.formulario.reset()
         } else {
-          this._snackBar.open('No es posible actualizar', '', { duration: 3000, verticalPosition: 'top' })
+          this.markFormInvalid();
         }
 
       } else {
-        this._snackBar.open('Formulario invalido', '', { duration: 3000, verticalPosition: 'top' })
-        this.markFormInvalid()
-      }
+        // --- MODO CREACION (CREATE) ---
+        if (this.formulario.valid) {
+          
+          // CAMBIO CRÍTICO: Usar 'user/create' en lugar de 'auth/signup'
+          // auth/signup fuerza rol Cliente. user/create respeta el rol que seleccionamos (Cocinero/Cajero)
+          const data: any = await this._provider.request('POST', 'user/create', formData);
 
-    } else {
-      // --- MODO CREACION ---
-
-      if (this.formulario.valid) {
-
-        var data = await this._provider.request('POST', 'auth/signup', formData)
-
-        if (data) {
-          this._snackBar.open('Usuario Creado', '', { duration: 3000, verticalPosition: 'top' })
-          this._router.navigate(['private/user-view'])
-          this.formulario.reset()
+          if (data && !data.error) {
+            this._snackBar.open('Usuario Creado Exitosamente', 'Cerrar', { duration: 3000, verticalPosition: 'top' });
+            this._router.navigate(['private/user-view']);
+          } else {
+            this._snackBar.open(data.msg || 'No se pudo crear el usuario', 'Cerrar', { duration: 3000, verticalPosition: 'top' });
+          }
         } else {
-          this._snackBar.open('No es posible crear', '', { duration: 3000, verticalPosition: 'top' })
+          this.markFormInvalid();
         }
-
-      } else {
-        this._snackBar.open('Formulario invalido', '', { duration: 3000, verticalPosition: 'top' })
-        this.markFormInvalid()
       }
+    } catch (error) {
+      console.error(error);
+      this._snackBar.open('Error de comunicación con el servidor', 'Cerrar', { duration: 3000 });
     }
   }
 
   async deleteUser() {
+    if(!confirm("¿Estás seguro de eliminar este usuario?")) return;
 
-    var data = await this._provider.request('DELETE', 'user/deleteUser', { idusers: this.id })
+    try {
+      // Usamos el endpoint correcto: user/delete
+      const data: any = await this._provider.request('DELETE', 'user/delete', { idusers: this.id });
 
-    if (data) {
-      this._wsService.request('usuarios', data)
-      this._snackBar.open('Usuario Eliminado', '', { duration: 3000, verticalPosition: 'top' })
-      this._router.navigate(['private/user-view'])
-      this.formulario.reset()
-    } else {
-      this._snackBar.open('No es posible eliminar el usuario', '', { duration: 3000, verticalPosition: 'top' })
+      if (data && !data.error) {
+        // Notificar via socket si es necesario
+        // this._wsService.emit('usuarios_actualizados', data); 
+        
+        this._snackBar.open('Usuario Eliminado', 'Cerrar', { duration: 3000, verticalPosition: 'top' });
+        this._router.navigate(['private/user-view']);
+      } else {
+        // Mostrar mensaje del backend (Ej: "No se puede eliminar porque tiene ventas")
+        this._snackBar.open(data.msg || 'No es posible eliminar el usuario', 'Cerrar', { duration: 5000, verticalPosition: 'top' });
+      }
+    } catch (error) {
+      console.error(error);
     }
   }
 
-  // Marca todos los campos invalidos en rojo
   markFormInvalid() {
-    document.querySelectorAll('.ng-invalid, .mat-mdc-radio-group.unselect')
-      .forEach((element: Element) => element.classList.add('invalid'))
+    this._snackBar.open('Formulario inválido, revisa los campos rojos', 'Cerrar', { duration: 3000 });
+    this.formulario.markAllAsTouched();
   }
 
-  // Muestra o no el campo email dependiendo del rol
   get showEmail(): boolean {
-    const selectedRol = this.formulario.get('rol')?.value
-    return Number(selectedRol) === 3
+    const selectedRol = this.formulario.get('rol')?.value;
+    return Number(selectedRol) === 3;
   }
 }

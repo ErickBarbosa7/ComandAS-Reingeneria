@@ -2,60 +2,77 @@
 namespace App\services;
 
 use Config\database\Methods as db;
-use Config\Jwt\Jwt;
 
 class UserService {
 
     // Ver todos
     public static function viewUsers(){
         $query = (object)[
-            "query" => "SELECT idusers, name, phone, rol, email FROM users WHERE active = 1",
+            "query" => "SELECT idusers, name, phone, rol, email FROM users ORDER BY name ASC",
             "params" => []
         ];
         return db::query($query);
     }
 
-    // Ver uno (incluyendo email)
+    // Ver uno
     public static function viewUser($id){
         $query = (object)[
-            "query" => "SELECT idusers, name, phone, rol, email FROM users WHERE idusers = ? AND active = 1",
+            "query" => "SELECT idusers, name, phone, rol, email FROM users WHERE idusers = ?",
             "params" => [$id]
         ];
         return db::query_one($query);
     }
 
-    // Actualizar usuario   
-    public static function updateUser($id, $name, $password, $phone){
-    if ($password !== "") {
-        $pass_hash = password_hash($password, PASSWORD_BCRYPT);
+    // Crear usuario 
+    public static function createUser($id, $name, $password, $phone, $rol, $email){
         $query = (object)[
-            "query" => "UPDATE users SET name=?, password=?, phone=? WHERE idusers=?",
-            "params" => [$name, $pass_hash, $phone, $id]
+            "query" => "INSERT INTO users (idusers, name, password, phone, rol, email) 
+                        VALUES (?, ?, ?, ?, ?, ?)",
+            "params" => [$id, $name, $password, $phone, $rol, $email]
         ];
-    } else {
-        $query = (object)[
-            "query" => "UPDATE users SET name=?, phone=? WHERE idusers=?",
-            "params" => [$name, $phone, $id]
-        ];
+        return db::save($query);
     }
 
-    $result = db::query($query);
+    // Actualizar usuario
+    public static function updateUser($id, $name, $password, $phone, $rol, $email){
+        
+        if ($password !== null && $password !== "") {
+            $query = (object)[
+                "query" => "UPDATE users 
+                            SET name=?, password=?, phone=?, rol=?, email=? 
+                            WHERE idusers=?",
+                "params" => [$name, $password, $phone, $rol, $email, $id]
+            ];
+        } else {
+            $query = (object)[
+                "query" => "UPDATE users 
+                            SET name=?, phone=?, rol=?, email=? 
+                            WHERE idusers=?",
+                "params" => [$name, $phone, $rol, $email, $id]
+            ];
+        }
 
-    // Si no hubo error, devolvemos el usuario actualizado
-    if (!$result->error) {
-        return self::viewUser($id);
+        return db::save($query);
     }
 
-    return $result;
-}
-
-    // Eliminar
+    // Eliminar usuario
     public static function deleteUser($id){
         $query = (object)[
-            "query" => "UPDATE users SET active = 0 WHERE idusers = ?",
+            "query" => "DELETE FROM users WHERE idusers = ?",
             "params" => [$id]
         ];
-        return db::query($query);
+        
+        $res = db::save($query);
+
+        if(isset($res['error']) && $res['error']) {
+            if (strpos($res['msg'], 'Constraint') !== false || strpos($res['msg'], 'foreign key') !== false) {
+                return [
+                    "error" => true,
+                    "msg" => "No se puede eliminar: El usuario tiene historial de ventas y es necesario para los reportes."
+                ];
+            }
+        }
+        return $res;
     }
 }
 ?>
